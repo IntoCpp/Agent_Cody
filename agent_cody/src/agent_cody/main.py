@@ -4,7 +4,7 @@ from dispatcher.dispatcher import Dispatcher
 dispatcher = Dispatcher()
 
 prompt = dispatcher.dispatch(
-    task="coding",
+    task="review",
     language="cpp",
     prompt="Write a ring buffer.",
 )
