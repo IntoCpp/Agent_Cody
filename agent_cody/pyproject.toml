@@ -1,0 +1,24 @@
+[project]
+name = "agent_cody"
+version = "0.1.0"
+description = "agent-cody using crewAI"
+authors = [{ name = "Yan-Eric Glazounov", email = "you@example.com" }]
+requires-python = ">=3.10,<3.14"
+dependencies = [
+    "crewai[tools]==1.14.4"
+]
+
+[project.scripts]
+agent_cody = "agent_cody.main:run"
+run_crew = "agent_cody.main:run"
+train = "agent_cody.main:train"
+replay = "agent_cody.main:replay"
+test = "agent_cody.main:test"
+run_with_trigger = "agent_cody.main:run_with_trigger"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.crewai]
+type = "crew"
