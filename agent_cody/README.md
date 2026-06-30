@@ -2,6 +2,10 @@
 
 Welcome to the AgentCody Crew project, powered by [crewAI](https://crewai.com). This template is designed to help you set up a multi-agent AI system with ease, leveraging the powerful and flexible framework provided by crewAI. Our goal is to enable your agents to collaborate effectively on complex tasks, maximizing their collective intelligence and capabilities.
 
+This could be a nice read to revise how I did things: https://blog.crewai.com/getting-started-with-crewai-build-your-first-crew/
+
+
+
 ## Installation
 
 Ensure you have Python >=3.10 <3.14 installed on your system. This project uses [UV](https://docs.astral.sh/uv/) for dependency management and package handling, offering a seamless setup and execution experience.
@@ -52,3 +56,131 @@ For support, questions, or feedback regarding the AgentCody Crew or crewAI.
 - [Chat with our docs](https://chatg.pt/DWjSBZn)
 
 Let's create wonders together with the power and simplicity of crewAI.
+
+
+## Ongoing Dev Notes
+
+### Phase 8 – Add Gradio
+
+Create a minimal interface.
+
+Language
+
+Task
+
+Prompt
+
+Submit
+
+No project context.
+
+No file upload.
+
+No chat history.
+
+Just prove the end-to-end flow.
+
+Commit.
+
+### Phase 9 – Add Conversation History
+
+Maintain the conversation between requests.
+
+This allows follow-up questions.
+
+Commit.
+
+### Phase 10 – Add Project Context
+
+Allow:
+
+Select Folder
+
+or
+
+Upload Files
+
+The dispatcher includes relevant files in the prompt.
+
+Commit.
+
+### Phase 11 – Add Agent Hand-offs
+
+Onwly after everything above orks.
+
+Example:
+
+Coding Agent
+
+↓
+
+"I'd like the Review Agent to verify this."
+
+↓
+
+Review Agent
+
+↓
+
+Return
+
+This is where CrewAI starts providing real value.
+
+Commit.
+
+#### Once stable: Upgrade to structured output for the code-review.
+
+### Phase 12 – Refine
+
+Expand gradually:
+
+More languages
+More standards
+Framework knowledge
+Documentation agent
+Design agent
+Testing agent
+Refactoring agent
+Security review agent
+
+Each should be a small, incremental addition.
+
+### Development Philosophy
+
+I recommend following this order:
+
+✓ CrewAI project
+
+↓
+
+✓ Dispatcher
+
+↓
+
+✓ One working agent
+
+↓
+
+✓ Prompt composition
+
+↓
+
+✓ Gradio UI
+
+↓
+
+✓ Conversation memory
+
+↓
+
+✓ Project context
+
+↓
+
+✓ Agent collaboration
+
+↓
+
+✓ Additional agents
+
+The key is to avoid building all the agents upfront. Once you have a single agent working with the dispatcher and prompt composition, every additional capability becomes mostly a matter of writing a new role prompt and plugging it into the existing architecture. That keeps each commit small, testable, and easy to debug.

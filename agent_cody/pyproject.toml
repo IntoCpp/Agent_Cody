@@ -2,10 +2,12 @@
 name = "agent_cody"
 version = "0.1.0"
 description = "agent-cody using crewAI"
-authors = [{ name = "Yan-Eric Glazounov", email = "you@example.com" }]
+authors = [{ name = "Your Name", email = "you@example.com" }]
 requires-python = ">=3.10,<3.14"
 dependencies = [
-    "crewai[tools]==1.14.4"
+    "crewai[tools]==1.14.4",
+    "gradio>=6.19.0",
+    "langchain-openai>=1.3.3",
 ]
 
 [project.scripts]
@@ -22,3 +24,6 @@ build-backend = "hatchling.build"
 
 [tool.crewai]
 type = "crew"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agent_cody"]

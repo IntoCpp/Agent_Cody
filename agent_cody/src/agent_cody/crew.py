@@ -1,63 +1,68 @@
-from crewai import Agent, Crew, Process, Task
-from crewai.project import CrewBase, agent, crew, task
-from crewai.agents.agent_builder.base_agent import BaseAgent
-# If you want to run a snippet of code before or after the crew starts,
-# you can use the @before_kickoff and @after_kickoff decorators
-# https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
+from crewai import Agent, Task, Crew, Process
+import os
 
-@CrewBase
-class AgentCody():
-    """AgentCody crew"""
+coding_agent = Agent(
+    role="Senior Software Engineer",
+    goal="Write correct, clean, maintainable code based on instructions",
+    backstory="You are an expert software engineer.",
+    llm="gpt-4o-mini",   # 👈 IMPORTANT: string, not ChatOpenAI
+    verbose=True,
+)
 
-    agents: list[BaseAgent]
-    tasks: list[Task]
+review_agent = Agent(
+    role="Senior Code Reviewer",
+    goal="Find bugs, inefficiencies, and design issues in code",
+    backstory="You are extremely strict about correctness and maintainability.",
+    llm="gpt-4o-mini",
+    verbose=True,
+)
 
-    # Learn more about YAML configuration files here:
-    # Agents: https://docs.crewai.com/concepts/agents#yaml-configuration-recommended
-    # Tasks: https://docs.crewai.com/concepts/tasks#yaml-configuration-recommended
-    
-    # If you would like to add tools to your agents, you can learn more about it here:
-    # https://docs.crewai.com/concepts/agents#agent-tools
-    @agent
-    def researcher(self) -> Agent:
-        return Agent(
-            config=self.agents_config['researcher'], # type: ignore[index]
-            verbose=True
-        )
+# Probably obsolete - it was suggested but never mentioned again following other problems. Then we moved along.
+def run_review_task(code: str) -> str:
+    task = Task(
+        description=f"""
+Review the following code:
 
-    @agent
-    def reporting_analyst(self) -> Agent:
-        return Agent(
-            config=self.agents_config['reporting_analyst'], # type: ignore[index]
-            verbose=True
-        )
+{code}
 
-    # To learn more about structured task outputs,
-    # task dependencies, and task callbacks, check out the documentation:
-    # https://docs.crewai.com/concepts/tasks#overview-of-a-task
-    @task
-    def research_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['research_task'], # type: ignore[index]
-        )
+Return:
+- issues found
+- why they are problems
+- suggested fixes (as guidance, not rewritten full code)
+""",
+        expected_output="Review feedback",
+        agent=review_agent,
+    )
 
-    @task
-    def reporting_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['reporting_task'], # type: ignore[index]
-            output_file='report.md'
-        )
+    crew = Crew(
+        agents=[review_agent],
+        tasks=[task],
+        process=Process.sequential,
+        verbose=True,
+    )
 
-    @crew
-    def crew(self) -> Crew:
-        """Creates the AgentCody crew"""
-        # To learn how to add knowledge sources to your crew, check out the documentation:
-        # https://docs.crewai.com/concepts/knowledge#what-is-knowledge
+    return crew.kickoff()
 
-        return Crew(
-            agents=self.agents, # Automatically created by the @agent decorator
-            tasks=self.tasks, # Automatically created by the @task decorator
-            process=Process.sequential,
-            verbose=True,
-            # process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
-        )
+
+def run_agent(agent_type: str, prompt: str) -> str:
+
+    if agent_type == "coding":
+        agent = coding_agent
+        task = Task( description=prompt, expected_output="High quality code", agent=agent )
+    elif agent_type == "review":
+        agent = review_agent
+        task = Task( description=prompt, expected_output="Structured list of review comments", agent=agent )
+    else:
+        raise ValueError(f"Unknown agent type: {agent_type}")
+
+
+    crew = Crew(
+        agents=[agent],  # TODO: Generalize for other tasks (review, design, etc.)  later.
+        tasks=[task],
+        process=Process.sequential,
+        verbose=True,
+    )
+
+    result = crew.kickoff()
+    # print(Type of result returned: type(result)) # Usually a `crewai.crews.crew_output.CrewOutput`
+    return result.raw
