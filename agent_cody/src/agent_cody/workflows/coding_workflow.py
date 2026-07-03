@@ -33,28 +33,43 @@ class CodingWorkflow:
         # 1. Get code -> first pass
         print("Getting code")
         code = run_agent(agent, prompt)
+        print("----- ### DEBUG ### - CODE -----")
+        print(code)
+        print("----------------------")
 
         # 2. Refine the code using review agent.
         # FUTURE TODO do not do the review loop if this is a review task.
         self.review_history = []
         self.review_prompt_history = []
+        review_prompt = None
+        review_approved = False
+
         for i in range(max_iterations): # Make sure to NEVER loop indefinitely
             print(f"Code review pass {i+1}")
-            review_prompt = self.build_review_prompt(code)
-            self.review_prompt_history.append(review_prompt)
 
+            # First iteration? Create the review prompt, otherwise, append the last review result and new code.
+            if review_prompt is None:
+                # Build the initial review prompt with the code to review and no history.
+                prompt_builder = PromptBuilder()
+                review_prompt = prompt_builder.build_review_prompt( language=self.language, code=code )
+            else:
+                # Not the first pass, just add the latest code and review to the prompt for the next review pass.
+                review_prompt += self.get_last_review_and_new_code(review, code, iteration=i+1)
+
+
+            # Do the code review with the review agent, and get the structured JSON result.
             review_raw = run_agent( "review", review_prompt )
             print("----- ### DEBUG ### - Review raw -----")
             print(review_raw)
             print("----------------------")
 
-            # Extract the JSON from the agent reply and save a copy in history
+            # Extract the JSON from the agent reply
             review = self.parse_review(review_raw)
-            self.review_history.append(review)
-            
+           
             # 3. Check stop condition
             if self.stop_review(review):
                 print("Code approved by reviewer - review done")
+                review_approved = True
                 break
 
             # 4. refine the prompt for the next code loop
@@ -64,17 +79,9 @@ class CodingWorkflow:
             # 5. Do a code refining pass:
             code = run_agent(agent, refined_prompt)
         
+        if not review_approved:
+            print(f"Max review iterations reached ({max_iterations}) - review done, but may not be perfect.")
         return code
-
-    def build_review_prompt(self, code: str) -> str:
-        prompt_builder = PromptBuilder()
-        review_prompt = prompt_builder.build_review_prompt(
-            language=self.language,
-            code=code,
-            history=self.review_prompt_history,
-            previous_reviews=self.review_history, # in JSON
-        )
-        return review_prompt
 
     def stop_review(self, review_json: dict) -> bool:
         """ Returns `False` if reviewer approves the code to stop the review loop, True otherwise. """
@@ -84,6 +91,7 @@ class CodingWorkflow:
 #region Prompt Builders - Keep at the end of file because of the bad text alignment of the f-strings.
 
 
+    # TODO Rename get_refined_coding_prompt
     def get_refined_prompt(self, code: str, review: str ) -> str:
         """ 
             Build a very simple prompt (simpler than the initial one from "prompt builder") 
@@ -102,5 +110,20 @@ Fix the code according to the review.
 
 Return ONLY the full corrected code.
 """
+
+    def get_last_review_and_new_code(self, review: list, code: str, iteration: int ) -> str:
+        """
+            Append to the initial review prompt the latest code and review, to get a new review from the reviewer.    
+        """
+        return f"""
+You are reviewing code iteratively. Most recent changes last.
+Do NOT repeat previously reported issues unless they still exist.
+
+## Review {iteration}
+{review}
+## Code fix of review {iteration}
+{code}
+"""
+
 
 #endregion Prompt Builders

@@ -46,7 +46,9 @@ with gr.Blocks() as demo:
 
     chatbot = gr.Chatbot()
 
-    prompt = gr.Textbox(label="Prompt", value="code a function that takes 2 numbers in parameter and returns the sum.")
+    debug_question = "Write a Python function that opens a file, reads all lines, and returns them. Keep the implementation as short as possible."
+
+    prompt = gr.Textbox(label="Prompt", value=debug_question)
 
     state = gr.State([]) # This is the "truth"
 
