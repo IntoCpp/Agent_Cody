@@ -24,7 +24,7 @@ class PromptBuilder:
             return ""
 
         lines = []
-        for msg in history[-10:]:  # limit context size to last X calls
+        for msg in history[-10:]:  # limit context size to last X calls TODO use a const please
             role = msg.get("role", "user")
             content = msg.get("content", "")
 
@@ -32,6 +32,7 @@ class PromptBuilder:
 
         return "\n".join(lines)
 
+    # TODO: Rename "build_initial_prompt" and document how this is used for the first pass of a task.
     def build(
         self,
         agent: str,
@@ -39,6 +40,9 @@ class PromptBuilder:
         user_prompt: str,
         history: str,
     ) -> str:
+        """ Build a prompt for the selected agent, language, user prompt and history.
+            The prompt is built from various Markdown files that contain instructions and standards for the agent.
+        """
 
         sections = []
 
@@ -57,5 +61,36 @@ class PromptBuilder:
         sections.append("## User Request")
         sections.append(user_prompt)
        
+
+        return "\n\n".join(sections)
+    
+    def build_review_prompt(self, language: str, code: str, history: list = None, previous_reviews: list = None) -> str:
+        """ Build a prompt for the review agent, based on the code to be reviewed, and history of previous reviews. 
+            The prompt is built from various Markdown files that contain instructions and standards for the agent.
+        """
+        sections = []
+
+        # Basic prompt for this task
+        sections.append( self.load_file(f"agents/review.md") ) # Agent is hard-coded to `review` for this function, since it is only used for the review agent.
+        sections.append( self.load_file("standards/common.md") )
+        sections.append( self.load_file(f"standards/{language.lower()}.md") )
+
+        # Add prompt history
+        if history:
+            sections.append("## Conversation History")
+            sections.append(self.format_history(history))
+
+        # Add previous review comments
+        if previous_reviews:
+            sections.append("You are reviewing code iteratively.")
+            sections.append("Do NOT repeat previously reported issues unless they still exist.")
+
+            sections.append("## Previous Reviews")
+            for i, r in enumerate(previous_reviews):
+                sections.append(f"Review {i+1}: {r}")
+
+        # Add code to review
+        sections.append("## Code to Review")
+        sections.append(code)
 
         return "\n\n".join(sections)

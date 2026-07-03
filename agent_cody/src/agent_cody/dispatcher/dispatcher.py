@@ -33,6 +33,6 @@ class Dispatcher:
         )
 
         workflow = CodingWorkflow()
-        return workflow.run_with_review_loop(agent=agent, prompt=final_prompt )
+        return workflow.run_with_review_loop(agent=agent, language=language, prompt=final_prompt )
         # return run_agent(final_prompt)
         # return final_prompt
