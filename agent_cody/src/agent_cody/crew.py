@@ -17,33 +17,6 @@ review_agent = Agent(
     verbose=True,
 )
 
-# Probably obsolete - it was suggested but never mentioned again following other problems. Then we moved along.
-def run_review_task(code: str) -> str:
-    task = Task(
-        description=f"""
-Review the following code:
-
-{code}
-
-Return:
-- issues found
-- why they are problems
-- suggested fixes (as guidance, not rewritten full code)
-""",
-        expected_output="Review feedback",
-        agent=review_agent,
-    )
-
-    crew = Crew(
-        agents=[review_agent],
-        tasks=[task],
-        process=Process.sequential,
-        verbose=True,
-    )
-
-    return crew.kickoff()
-
-
 def run_agent(agent_type: str, prompt: str) -> str:
 
     if agent_type == "coding":
@@ -64,5 +37,4 @@ def run_agent(agent_type: str, prompt: str) -> str:
     )
 
     result = crew.kickoff()
-    # print(Type of result returned: type(result)) # Usually a `crewai.crews.crew_output.CrewOutput`
     return result.raw

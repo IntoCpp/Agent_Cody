@@ -14,17 +14,19 @@ class PromptBuilder:
 
     def __init__(self):
         self.root = Path(__file__).parent.parent
+        self.history_limit = -10 # limit context size to last X calls
 
     def load_file(self, relative_path: str) -> str:
         path = self.root / relative_path
         return path.read_text(encoding="utf-8")
 
     def format_history(self, history):
+        """ Format the history of previous prompts and responses into a string to be added to the prompt."""
         if not history:
             return ""
 
         lines = []
-        for msg in history[-10:]:  # limit context size to last X calls TODO use a const please
+        for msg in history[self.history_limit:]: # limit context size to last X calls
             role = msg.get("role", "user")
             content = msg.get("content", "")
 
@@ -32,7 +34,6 @@ class PromptBuilder:
 
         return "\n".join(lines)
 
-    # TODO: Rename "build_initial_prompt" and document how this is used for the first pass of a task.
     def build(
         self,
         agent: str,
@@ -44,6 +45,10 @@ class PromptBuilder:
             The prompt is built from various Markdown files that contain instructions and standards for the agent.
         """
 
+        if agent == "review":
+            # Review is only called by the coding agent and should not pass here.
+            raise ValueError("Use `build_review_prompt` for the review agent, not `build`.")
+
         sections = []
 
         # Basic prompt for this task
@@ -51,7 +56,7 @@ class PromptBuilder:
         sections.append( self.load_file("standards/common.md") )
         sections.append( self.load_file(f"standards/{language.lower()}.md") )
 
-        # Add History
+        # Add History - This project goal minimizes history, but I add it anyway for good measure.
         history_text = self.format_history(history)
         if history_text:
             sections.append("## Conversation History")
@@ -60,12 +65,11 @@ class PromptBuilder:
         # Add user latest request
         sections.append("## User Request")
         sections.append(user_prompt)
-       
 
         return "\n\n".join(sections)
     
     def build_review_prompt(self, language: str, code: str ) -> str:
-        """ Build a prompt for the review agent, based on the code to be reviewed, and history of previous reviews. 
+        """ Build a prompt for the review agent, with the code to be reviewed.
             The prompt is built from various Markdown files that contain instructions and standards for the agent.
         """
         sections = []
