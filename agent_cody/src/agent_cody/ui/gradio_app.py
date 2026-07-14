@@ -46,7 +46,7 @@ with gr.Blocks() as demo:
 
     chatbot = gr.Chatbot()
 
-    debug_question = "Write a function that opens a file, reads all lines, and returns them. Keep the implementation as short as possible."
+    debug_question = "Write a function that "
 
     prompt = gr.Textbox(label="Prompt", value=debug_question)
 
