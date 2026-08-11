@@ -45,9 +45,8 @@ class PromptBuilder:
             The prompt is built from various Markdown files that contain instructions and standards for the agent.
         """
 
-        if agent == "review":
-            # Review is only called by the coding agent and should not pass here.
-            raise ValueError("Use `build_review_prompt` for the review agent, not `build`.")
+        if agent in {"review", "documentation"}:
+            raise ValueError(f"Use the dedicated prompt builder for the {agent} agent.")
 
         sections = []
 
@@ -82,5 +81,18 @@ class PromptBuilder:
         # Add code to review
         sections.append("## Code to Review")
         sections.append(code)
+
+        return "\n\n".join(sections)
+
+    def build_documentation_prompt(self, mode: str, content: str) -> str:
+        """Build a documentation prompt without applying common coding rules."""
+        sections = [
+            self.load_file("agents/documentation.md"),
+            self.load_file(f"standards/{mode.lower()}.md"),
+            "## Documentation Mode",
+            mode,
+            "## Input",
+            content,
+        ]
 
         return "\n\n".join(sections)

@@ -8,6 +8,7 @@ dependencies = [
     "crewai[tools]==1.14.4",
     "gradio>=6.19.0",
     "langchain-openai>=1.3.3",
+    "pyyaml>=6.0.3",
 ]
 
 [project.scripts]
