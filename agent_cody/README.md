@@ -97,11 +97,11 @@ cd agent-cody/agent_cody
 uv sync
 ```
 
-If the installed CrewAI version requires additional initialization:
+This is the only dependency-installation command required for Agent Cody. It reads `pyproject.toml` and `uv.lock`, creates the project virtual environment, and installs the pinned `crewai[tools]` package together with Gradio and the other dependencies.
 
-```bash
-crewai install
-```
+Do **not** run `crewai install` afterward. CrewAI documents that command for its generated projects, but it is only a thin wrapper around `uv sync`; it does not perform additional CrewAI initialization. This project does not use CrewAI's authenticated Tool Repository or any other installation step that would require the wrapper.
+
+If you already use the CrewAI CLI, you may run `crewai install` **instead of** `uv sync`, but running both is redundant.
 
 ### 4. Configure credentials
 
