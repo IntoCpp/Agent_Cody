@@ -2,26 +2,28 @@
 
 Agent Cody is an experimental AI-assisted coding project built with **CrewAI** and **Gradio**.
 
-Its goal is to produce high-quality results for small, focused software-development tasks while using less context and fewer LLM tokens than full-project IDE assistants.
+Its goal is to produce high-quality results for small, focused software-development work while using less context and fewer LLM tokens than full-project IDE assistants.
 
 > [!WARNING]
 > This project is an exploratory prototype and is no longer under active development.
 
 ## Capabilities
 
-The Gradio interface provides three tasks:
+The Gradio interface provides three agents:
 
 * **Code** — Generate Python, C++, or C# code and refine it through an iterative review cycle.
-* **Review** — Perform one code-review pass using the selected language's standards and present a readable list of issues and recommendations.
+* **Review** — Perform one code-review pass using the selected task's standards and present a readable list of issues and recommendations.
 * **Documentation** — Generate language-native code documentation, proofread professional text, or translate between English and French.
 
-Submitted text and responses are retained in the chat history. The input box is cleared after each successful submission.
+Each agent is paired with a **task** that selects the programming language (Python, C++, C#) or, for Documentation only, a text mode (Syntax or Translate).
+
+Submitted text and responses are retained in the chat history. The input box is cleared after each successful submission and shows at least ten lines while typing.
 
 ## Background
 
 Agent Cody was the author's second CrewAI project and a learning exercise in multi-agent orchestration, prompt engineering, and iterative AI workflows.
 
-The project demonstrated that narrowly scoped prompts can reduce token consumption, but it also highlighted the infrastructure required for prompt composition, task dispatching, workflow management, review loops, and state management.
+The project demonstrated that narrowly scoped prompts can reduce token consumption, but it also highlighted the infrastructure required for prompt composition, agent dispatching, workflow management, review loops, and state management.
 
 > [!NOTE]
 > **Project Status:** On Hold
@@ -48,7 +50,7 @@ Agent instructions are stored in:
 
 `src/agent_cody/agents/`
 
-Language and text-mode standards are stored in:
+Task-specific standards are stored in:
 
 `src/agent_cody/standards/`
 
@@ -58,19 +60,19 @@ The shared `common.md` coding rules apply to Code and Review. Documentation inte
 * `syntax.md` for professional proofreading
 * `translate.md` for English/French translation
 
-The Gradio language selector adds **Syntax** and **Translate** only while Documentation is selected.
+The Gradio task selector adds **Syntax** and **Translate** only while the Documentation agent is selected.
 
 ### Model configuration
 
-Each task can use a different LLM. Configure the assignments in:
+Each agent can use a different LLM. Configure the assignments in:
 
 `src/agent_cody/config/models_to_use.yaml`
 
 Model names must use CrewAI's `provider/model-id` format. The defaults are:
 
-* Code: `openai/gpt-5.6-sol`
-* Review: `openai/gpt-4o-mini`
-* Documentation: `openai/gpt-4o-mini`
+* Code agent: `openai/gpt-5.6-sol`
+* Review agent: `openai/gpt-4o-mini`
+* Documentation agent: `openai/gpt-4o-mini`
 
 Set the appropriate provider API key whenever you configure a model from another provider.
 

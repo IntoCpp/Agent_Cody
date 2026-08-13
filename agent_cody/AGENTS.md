@@ -21,30 +21,30 @@ uv run python src/agent_cody/ui/gradio_app.py
 
 The repository-root `start_agent_cody.ps1` script provides the Windows launcher.
 
-### Supported tasks
+### Supported agents
 
-- **Code** supports Python, C++, and C#. It generates code and runs the existing iterative coding/review workflow for up to three review passes.
-- **Review** supports Python, C++, and C#. It performs one review-agent pass and formats the structured review as a readable issue list.
-- **Documentation** supports Python, C++, and C# code documentation. It also exposes **Syntax** for professional proofreading and **Translate** for English/French translation.
+- **Code** supports Python, C++, and C# tasks. It generates code and runs the existing iterative coding/review workflow for up to three review passes.
+- **Review** supports Python, C++, and C# tasks. It performs one review-agent pass and formats the structured review as a readable issue list.
+- **Documentation** supports Python, C++, and C# code-documentation tasks. It also exposes **Syntax** for professional proofreading and **Translate** for English/French translation.
 
-Syntax and Translate must appear in the Gradio language selector only while Documentation is selected. The prompt textbox is cleared after submission because the submitted text remains visible in chat history.
+Syntax and Translate must appear in the Gradio task selector only while the Documentation agent is selected. The prompt textbox is cleared after submission because the submitted text remains visible in chat history.
 
 ### Prompt and standards composition
 
 - Agent instructions are stored in `src/agent_cody/agents/`.
-- Language and text-mode standards are stored in `src/agent_cody/standards/`.
-- Code and Review use `standards/common.md` plus the selected language standard.
-- Documentation uses `agents/documentation.md` plus the selected language or text-mode standard.
+- Task standards are stored in `src/agent_cody/standards/`.
+- Code and Review use `standards/common.md` plus the selected task standard.
+- Documentation uses `agents/documentation.md` plus the selected task standard.
 - Documentation must never include `standards/common.md`, because those rules instruct the model to produce code.
-- Keep the standalone Review path separate from the iterative review cycle used by Code.
+- Keep the standalone Review agent path separate from the iterative review cycle used by Code.
 
-### Per-task models
+### Per-agent models
 
-Task models are configured in:
+Agent models are configured in:
 
 `src/agent_cody/config/models_to_use.yaml`
 
-Use CrewAI's `provider/model-id` format. Do not hard-code task models in `crew.py`; load the `code`, `review`, and `documentation` entries from this configuration. The current defaults assign GPT-5.6 Sol to Code and GPT-4o mini to Review and Documentation.
+Use CrewAI's `provider/model-id` format. Do not hard-code agent models in `crew.py`; load the `code`, `review`, and `documentation` entries from this configuration. The current defaults assign GPT-5.6 Sol to the Code agent and GPT-4o mini to the Review and Documentation agents.
 
 ## **The rest of this document contains CrewAI generated documentation from project initialization.**
 

@@ -24,12 +24,9 @@ class CodingWorkflow:
         except Exception as e:
             raise ValueError(f"Invalid review JSON: {review_text}") from e    
 
-    def run_with_review_loop(self, agent: str, language: str, prompt: str, max_iterations=MAX_REVIEW_ITERATIONS):
-        """ Run a task with the received agent, with a loop to refine the task based on review feedback.
+    def run_with_review_loop(self, agent: str, task: str, prompt: str, max_iterations=MAX_REVIEW_ITERATIONS):
+        """ Run the coding agent with a loop to refine code based on review feedback.
             The loop will stop when the reviewer approves the code or when the maximum number of iterations is reached.
-            
-            Remark: The `agent` here is not very useful, since this will always be a coding agent for now. The work done
-            for the coding task sort-of shackled me in this design that can hardly be re-used for other task / agent.
         """
         # 1. First pass -> Get some code from the agent
         print("Getting code")
@@ -50,7 +47,7 @@ class CodingWorkflow:
             if review_prompt is None:
                 # First iteration? Build the initial review prompt with the code to review and no history.
                 prompt_builder = PromptBuilder()
-                review_prompt = prompt_builder.build_review_prompt( language=language, code=code )
+                review_prompt = prompt_builder.build_review_prompt( task=task, code=code )
             else:
                 # Not the first pass, append the last review result and latest code.
                 review_prompt += self.get_refined_review_prompt(review, code, iteration=i+1)

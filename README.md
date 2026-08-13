@@ -1,6 +1,6 @@
 # Agent_Cody
 
-**Agent Cody** is an experimental, task-focused AI coding assistant built with CrewAI and Gradio.
+**Agent Cody** is an experimental, agent-focused AI coding assistant built with CrewAI and Gradio.
 
 It supports code generation with iterative review, standalone code reviews, and documentation utilities for code, proofreading, and translation.
 
@@ -11,8 +11,9 @@ See [agent_cody/README.md](./agent_cody/README.md) for installation, configurati
 
 ## History
 
-- **2026-08-11** — Added C# selection and language-specific coding standards.
+- **2026-08-13** — Renamed UI labels to CrewAI terminology (Agent/Task), expanded the prompt area, and rearranged the control bar.
+- **2026-08-11** — Added C# task and language-specific coding standards.
 - **2026-08-11** — Added standalone code reviews with readable issue formatting.
-- **2026-08-11** — Completed documentation generation, professional proofreading, and English/French translation tasks.
-- **2026-08-11** — Added task-dependent language choices and automatic prompt clearing after submission.
-- **2026-08-11** — Added per-task model configuration and assigned GPT-5.6 Sol to code generation.
+- **2026-08-11** — Completed documentation generation, professional proofreading, and English/French translation agents.
+- **2026-08-11** — Added agent-dependent task choices and automatic prompt clearing after submission.
+- **2026-08-11** — Added per-agent model configuration and assigned GPT-5.6 Sol to the Code agent.

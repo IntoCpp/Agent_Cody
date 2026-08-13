@@ -7,7 +7,7 @@ from agent_cody.workflows.coding_workflow import CodingWorkflow
 
 class Dispatcher:
     """
-        Calls the right agent based on the selected task, uses PromptBuilder to create the prompt.
+        Routes requests to the selected agent and builds prompts with PromptBuilder.
     """
 
     def __init__(self):
@@ -15,7 +15,7 @@ class Dispatcher:
         self.prompt_builder = PromptBuilder()
 
 
-    def dispatch(self, task, language, prompt, history = None):
+    def dispatch(self, agent, task, prompt, history = None):
         agent_map = {
             "coding": "coding",
             "review": "review",
@@ -23,33 +23,32 @@ class Dispatcher:
             "documentation": "documentation",
         }
 
-        agent = agent_map[task] # Task for specialized agent
+        agent_type = agent_map[agent]
 
-        if agent == "review":
+        if agent_type == "review":
             review_prompt = self.prompt_builder.build_review_prompt(
-                language=language,
+                task=task,
                 code=prompt,
             )
             review_result = run_agent("review", review_prompt)
             return self.format_review_output(review_result)
 
-        if agent == "documentation":
+        if agent_type == "documentation":
             documentation_prompt = self.prompt_builder.build_documentation_prompt(
-                mode=language,
+                task=task,
                 content=prompt,
             )
             return run_agent("documentation", documentation_prompt)
 
         final_prompt = self.prompt_builder.build(
-            agent=agent, # string for task: `coding` or `design`, etc.
-            language=language,
+            agent=agent_type,
+            task=task,
             user_prompt=prompt,
             history=history,
         )
 
-        # Coding task...
         workflow = CodingWorkflow()
-        return workflow.run_with_review_loop(agent=agent, language=language, prompt=final_prompt )
+        return workflow.run_with_review_loop(agent=agent_type, task=task, prompt=final_prompt )
 
     @staticmethod
     def format_review_output(review_text: str) -> str:

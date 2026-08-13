@@ -8,23 +8,23 @@ MODELS_CONFIG_PATH = Path(__file__).parent / "config" / "models_to_use.yaml"
 
 
 def load_models_config() -> dict[str, str]:
-    """Load and validate the model assigned to each supported task."""
+    """Load and validate the model assigned to each supported agent."""
     with MODELS_CONFIG_PATH.open(encoding="utf-8") as config_file:
         models = yaml.safe_load(config_file)
 
     if not isinstance(models, dict):
         raise ValueError(f"Invalid model configuration: {MODELS_CONFIG_PATH}")
 
-    required_tasks = {"code", "review", "documentation"}
-    missing_tasks = required_tasks - models.keys()
-    if missing_tasks:
-        missing_list = ", ".join(sorted(missing_tasks))
+    required_agents = {"code", "review", "documentation"}
+    missing_agents = required_agents - models.keys()
+    if missing_agents:
+        missing_list = ", ".join(sorted(missing_agents))
         raise ValueError(f"Missing model configuration for: {missing_list}")
 
-    for task in required_tasks:
-        model = models[task]
+    for agent_key in required_agents:
+        model = models[agent_key]
         if not isinstance(model, str) or not model.strip():
-            raise ValueError(f"Model for '{task}' must be a non-empty string.")
+            raise ValueError(f"Model for '{agent_key}' must be a non-empty string.")
 
     return models
 
@@ -75,7 +75,7 @@ def run_agent(agent_type: str, prompt: str) -> str:
 
 
     crew = Crew(
-        agents=[agent],  # TODO: Generalize for other tasks (review, design, etc.)  later.
+        agents=[agent],  # TODO: Generalize for other agents (review, design, etc.) later.
         tasks=[task],
         process=Process.sequential,
         verbose=True,
