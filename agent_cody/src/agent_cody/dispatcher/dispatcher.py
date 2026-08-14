@@ -15,7 +15,7 @@ class Dispatcher:
         self.prompt_builder = PromptBuilder()
 
 
-    def dispatch(self, agent, task, prompt, history = None):
+    def dispatch(self, agent, task, prompt, history=None, agent_models=None):
         agent_map = {
             "coding": "coding",
             "review": "review",
@@ -24,13 +24,18 @@ class Dispatcher:
         }
 
         agent_type = agent_map[agent]
+        models = agent_models or {}
 
         if agent_type == "review":
             review_prompt = self.prompt_builder.build_review_prompt(
                 task=task,
                 code=prompt,
             )
-            review_result = run_agent("review", review_prompt)
+            review_result = run_agent(
+                "review",
+                review_prompt,
+                model=models["review"],
+            )
             return self.format_review_output(review_result)
 
         if agent_type == "documentation":
@@ -38,7 +43,11 @@ class Dispatcher:
                 task=task,
                 content=prompt,
             )
-            return run_agent("documentation", documentation_prompt)
+            return run_agent(
+                "documentation",
+                documentation_prompt,
+                model=models["documentation"],
+            )
 
         final_prompt = self.prompt_builder.build(
             agent=agent_type,
@@ -48,7 +57,13 @@ class Dispatcher:
         )
 
         workflow = CodingWorkflow()
-        return workflow.run_with_review_loop(agent=agent_type, task=task, prompt=final_prompt )
+        return workflow.run_with_review_loop(
+            agent=agent_type,
+            task=task,
+            prompt=final_prompt,
+            coding_model=models["coding"],
+            review_model=models["review"],
+        )
 
     @staticmethod
     def format_review_output(review_text: str) -> str:

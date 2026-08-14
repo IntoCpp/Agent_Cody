@@ -24,13 +24,21 @@ class CodingWorkflow:
         except Exception as e:
             raise ValueError(f"Invalid review JSON: {review_text}") from e    
 
-    def run_with_review_loop(self, agent: str, task: str, prompt: str, max_iterations=MAX_REVIEW_ITERATIONS):
+    def run_with_review_loop(
+        self,
+        agent: str,
+        task: str,
+        prompt: str,
+        coding_model: str,
+        review_model: str,
+        max_iterations=MAX_REVIEW_ITERATIONS,
+    ):
         """ Run the coding agent with a loop to refine code based on review feedback.
             The loop will stop when the reviewer approves the code or when the maximum number of iterations is reached.
         """
         # 1. First pass -> Get some code from the agent
         print("Getting code")
-        code = run_agent(agent, prompt)
+        code = run_agent(agent, prompt, model=coding_model)
         print("----- ### DEBUG ### - CODE from agent -----")
         print(code)
         print("----------------------")
@@ -54,7 +62,7 @@ class CodingWorkflow:
 
 
             # Do the code review with the review agent, and get the structured JSON result.
-            review_raw = run_agent( "review", review_prompt )
+            review_raw = run_agent("review", review_prompt, model=review_model)
             print("----- ### DEBUG ### - Review raw -----")
             print(review_raw)
             print("----------------------")
@@ -73,7 +81,7 @@ class CodingWorkflow:
             refined_prompt = self.get_refined_coding_prompt(code, review )
 
             # 5. Do a code refining pass (apply review comments):
-            code = run_agent(agent, refined_prompt)
+            code = run_agent(agent, refined_prompt, model=coding_model)
         
         if not review_approved:
             print(f"Max review iterations reached ({max_iterations}) - review done, but may not be perfect.")

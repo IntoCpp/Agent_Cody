@@ -11,6 +11,7 @@ See [agent_cody/README.md](./agent_cody/README.md) for installation, configurati
 
 ## History
 
+- **2026-08-14** — Added user-selectable models in the Gradio UI: an `available_models` catalog in `models_to_use.yaml`, a Model dropdown with per-agent session memory, a compact model description line, and startup or runtime errors when a default or selected model is missing or unavailable.
 - **2026-08-13** — Renamed UI labels to CrewAI terminology (Agent/Task), expanded the prompt area, and rearranged the control bar.
 - **2026-08-11** — Added C# task and language-specific coding standards.
 - **2026-08-11** — Added standalone code reviews with readable issue formatting.

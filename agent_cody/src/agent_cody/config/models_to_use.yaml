@@ -12,3 +12,11 @@ review: openai/gpt-4o-mini
 # Documentation agent: A smaller model is generally sufficient for documentation,
 # proofreading, and translation tasks.
 documentation: openai/gpt-4o-mini
+
+# Other models that are available for user selection.
+available_models:
+  openai/gpt-5.6-sol: "The premium flagship model for highly complex reasoning, coding, and multi-agent coordination."
+  openai/gpt-5.6-terra: "The balanced model optimizing intelligence and cost, frequently used as the baseline for deep research tasks."
+  openai/gpt-5.6-luna: "High-volume, cost-sensitive model optimal for scaling large agent swarms."
+  openai/gpt-5.4-mini: "Explicitly optimized for computer use (ComputerTool), executing subagents, and rapid tool calling."
+  openai/gpt-4o-mini: "Cost-efficient, high-speed, small model designed to power fast, scalable agents. Lightweight alternative to full-sized models, ideal for tasks requiring low latency and high volume."
