@@ -23,8 +23,8 @@ The repository-root `start_agent_cody.ps1` script provides the Windows launcher.
 
 ### Supported agents
 
-- **Code** supports Python, C++, and C# tasks. It generates code and runs the existing iterative coding/review workflow for up to three review passes.
-- **Review** supports Python, C++, and C# tasks. It performs one review-agent pass and formats the structured review as a readable issue list.
+- **Code** supports Python, C++, and C# tasks. It generates code in **one** agent call per Submit (no automatic review loop).
+- **Review** supports Python, C++, and C# tasks. It performs one review-agent pass and formats the structured review as a readable issue list. After a successful Code response, the **Review** button (Code agent only) runs the same review path on the latest generated code; optional focus text can be added in the prompt box.
 - **Documentation** supports Python, C++, and C# code-documentation tasks. It also exposes **Syntax** for professional proofreading and **Translate** for English/French translation.
 
 Syntax and Translate must appear in the Gradio task selector only while the Documentation agent is selected. The prompt textbox is cleared after submission because the submitted text remains visible in chat history.
@@ -36,7 +36,13 @@ Syntax and Translate must appear in the Gradio task selector only while the Docu
 - Code and Review use `standards/common.md` plus the selected task standard.
 - Documentation uses `agents/documentation.md` plus the selected task standard.
 - Documentation must never include `standards/common.md`, because those rules instruct the model to produce code.
-- Keep the standalone Review agent path separate from the iterative review cycle used by Code.
+- For each agent, the long static instruction block is included **once per session per (agent kind, task)** on the first Submit after **Clear** or after **Task** changes; subsequent submits prepend **Conversation History** (prior user/assistant chat turns) without duplicating that block.
+
+### Session state (Gradio)
+
+- `session_prompt_state` tracks which `(agent kind, task)` pairs have already received their static block in the current session (`visited` list in the dispatcher).
+- Changing **Task** clears `visited` so the next Submit rebuilds static instructions for the new task standard.
+- **Clear** resets chat history, clears `visited`, and hides the **Review** button until the next successful Code response.
 
 ### Per-agent models
 

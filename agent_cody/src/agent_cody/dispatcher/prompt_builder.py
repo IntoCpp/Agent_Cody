@@ -2,92 +2,122 @@ from pathlib import Path
 
 
 class PromptBuilder:
-    """ Build a prompt to be sent to an AI model, based on input variables.
-        The prompts are based on various configuration that are set in Markdown files (AI **loves** Markdown)
-        Just document what you need from the agent in the files, it is all added to the prompt to obtain a great reply.
-        A typical prompt is composed of:
-        - Instructions for the selected agent,
-        - Standards to follow (common to all programming tasks), 
-        - Standards to follow for the selected task,
-        - User prompt (specific request for the agent/task)
+    """Compose prompts from Markdown agents/standards plus optional conversation transcript.
+
+    Static instructions (agent + task standards) are included only when the caller requests them
+    (typically the first Submit for each agent+task after Clear); later turns reuse transcript + user text.
     """
 
     def __init__(self):
         self.root = Path(__file__).parent.parent
-        self.history_limit = -10 # limit context size to last X calls
+        self.history_limit = -10  # last N messages for context window
 
     def load_file(self, relative_path: str) -> str:
         path = self.root / relative_path
         return path.read_text(encoding="utf-8")
 
-    def format_history(self, history):
-        """ Format the history of previous prompts and responses into a string to be added to the prompt."""
+    def format_transcript(self, history: list | None) -> str:
+        """Format prior user/assistant turns (excluding the current message)."""
         if not history:
             return ""
 
         lines = []
-        for msg in history[self.history_limit:]: # limit context size to last X calls
+        for msg in history[self.history_limit :]:
             role = msg.get("role", "user")
             content = msg.get("content", "")
-
             lines.append(f"{role.upper()}: {content}")
 
         return "\n".join(lines)
 
-    def build(
-        self,
-        agent: str,
-        task: str,
-        user_prompt: str,
-        history: str,
-    ) -> str:
-        """ Build a prompt for the selected agent, task, user prompt and history.
-            The prompt is built from various Markdown files that contain instructions and standards for the agent.
-        """
-
-        if agent in {"review", "documentation"}:
-            raise ValueError(f"Use the dedicated prompt builder for the {agent} agent.")
-
-        sections = []
-
-        sections.append( self.load_file(f"agents/{agent}.md") )
-        sections.append( self.load_file("standards/common.md") )
-        sections.append( self.load_file(f"standards/{task.lower()}.md") )
-
-        history_text = self.format_history(history)
-        if history_text:
-            sections.append("## Conversation History")
-            sections.append(history_text)
-
-        sections.append("## User Request")
-        sections.append(user_prompt)
-
-        return "\n\n".join(sections)
-    
-    def build_review_prompt(self, task: str, code: str ) -> str:
-        """ Build a prompt for the review agent, with the code to be reviewed.
-            The prompt is built from various Markdown files that contain instructions and standards for the agent.
-        """
-        sections = []
-
-        sections.append( self.load_file(f"agents/review.md") )
-        sections.append( self.load_file("standards/common.md") )
-        sections.append( self.load_file(f"standards/{task.lower()}.md") )
-
-        sections.append("## Code to Review")
-        sections.append(code)
-
+    def build_static_prefix_coding(self, task: str) -> str:
+        sections = [
+            self.load_file("agents/coding.md"),
+            self.load_file("standards/common.md"),
+            self.load_file(f"standards/{task.lower()}.md"),
+        ]
         return "\n\n".join(sections)
 
-    def build_documentation_prompt(self, task: str, content: str) -> str:
-        """Build a documentation prompt without applying common coding rules."""
+    def build_static_prefix_review(self, task: str) -> str:
+        sections = [
+            self.load_file("agents/review.md"),
+            self.load_file("standards/common.md"),
+            self.load_file(f"standards/{task.lower()}.md"),
+        ]
+        return "\n\n".join(sections)
+
+    def build_static_prefix_documentation(self, task: str) -> str:
         sections = [
             self.load_file("agents/documentation.md"),
             self.load_file(f"standards/{task.lower()}.md"),
-            "## Task",
-            task,
-            "## Input",
-            content,
         ]
-
         return "\n\n".join(sections)
+
+    def build_coding_prompt(
+        self,
+        task: str,
+        user_prompt: str,
+        history: list | None,
+        include_static: bool,
+    ) -> str:
+        """Full prompt for the coding agent."""
+        parts: list[str] = []
+        if include_static:
+            parts.append(self.build_static_prefix_coding(task))
+
+        transcript = self.format_transcript(history)
+        if transcript:
+            parts.append("## Conversation History")
+            parts.append(transcript)
+
+        parts.append("## User Request")
+        parts.append(user_prompt)
+        return "\n\n".join(parts)
+
+    def build_review_prompt(
+        self,
+        task: str,
+        code: str,
+        history: list | None,
+        include_static: bool,
+        focus_notes: str | None = None,
+    ) -> str:
+        """Full prompt for the review agent (standalone Review agent or Review button)."""
+        parts: list[str] = []
+        if include_static:
+            parts.append(self.build_static_prefix_review(task))
+
+        transcript = self.format_transcript(history)
+        if transcript:
+            parts.append("## Conversation History")
+            parts.append(transcript)
+
+        parts.append("## Code to Review")
+        if focus_notes and focus_notes.strip():
+            parts.append("### Focus / instructions from user")
+            parts.append(focus_notes.strip())
+            parts.append("### Code")
+        parts.append(code.strip() if code else "")
+        return "\n\n".join(parts)
+
+    def build_documentation_prompt(
+        self,
+        task: str,
+        content: str,
+        history: list | None,
+        include_static: bool,
+    ) -> str:
+        """Full prompt for the documentation agent."""
+        parts: list[str] = []
+        if include_static:
+            parts.append(self.build_static_prefix_documentation(task))
+
+        transcript = self.format_transcript(history)
+        if transcript:
+            parts.append("## Conversation History")
+            parts.append(transcript)
+
+        parts.append("## Task")
+        parts.append(task)
+        parts.append("## Input")
+        parts.append(content)
+        return "\n\n".join(parts)

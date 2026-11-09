@@ -11,9 +11,11 @@ Its goal is to produce high-quality results for small, focused software-developm
 
 The Gradio interface provides three agents:
 
-* **Code** — Generate Python, C++, or C# code and refine it through an iterative review cycle.
+* **Code** — Generate Python, C++, or C# code in **one** pass per Submit (no automatic review loop).
 * **Review** — Perform one code-review pass using the selected task's standards and present a readable list of issues and recommendations.
 * **Documentation** — Generate language-native code documentation, proofread professional text, or translate between English and French.
+
+After a **successful** Code response, the **Review** button appears (Code agent only). Use it to run the review agent on the **latest generated code**, optionally adding focus notes in the prompt box. You can also select **Review** in the Agent dropdown and paste code (same review pipeline).
 
 Each agent is paired with a **task** that selects the programming language (Python, C++, C#) or, for Documentation only, a text mode (Syntax or Translate).
 
@@ -34,13 +36,13 @@ The project demonstrated that narrowly scoped prompts can reduce token consumpti
 
 Agent Cody uses three specialized CrewAI agents:
 
-* A coding agent generates code and applies reviewer feedback.
-* A review agent checks correctness, security, performance, maintainability, and style.
+* A coding agent generates code in a single pass.
+* A review agent checks correctness, security, performance, maintainability, and style (on demand: Review agent, or **Review** after Code).
 * A documentation agent generates code documentation, corrects prose, and translates text.
 
 The dispatcher selects one of three execution paths:
 
-* **Code** builds a coding prompt and runs the coding/review workflow for up to three review passes.
+* **Code** builds a coding prompt and calls the coding agent **once** per Submit.
 * **Review** builds a review prompt and calls the review agent once.
 * **Documentation** builds a documentation prompt and calls the documentation agent once.
 
@@ -59,6 +61,8 @@ The shared `common.md` coding rules apply to Code and Review. Documentation inte
 * `python.md`, `cpp.md`, or `csharp.md` for code documentation
 * `syntax.md` for professional proofreading
 * `translate.md` for English/French translation
+
+For each agent, the long static block (`agents/*.md` and applicable standards) is sent **once per session** for each distinct **Agent + Task** pair (first Submit after **Clear**, or after you change **Task**). Later messages in the same session add **Conversation History** (prior user/assistant turns from the chat) plus the current request, without repeating that static block.
 
 The Gradio task selector adds **Syntax** and **Translate** only while the Documentation agent is selected.
 
