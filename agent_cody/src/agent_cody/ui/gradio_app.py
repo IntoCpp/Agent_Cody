@@ -25,6 +25,7 @@ DOCUMENTATION_TASK_CHOICES = [
     *CODE_TASK_CHOICES,
     ("Syntax", "syntax"),
     ("Translate", "translate"),
+    ("Professional", "professional"),
 ]
 
 MODEL_CHOICES = get_model_choices(MODELS_CONFIG)
@@ -144,7 +145,7 @@ def review_button_update(agent: str, code_ok: bool, last_code: str):
 
 
 def update_task_choices(agent, selected_task):
-    """Show Syntax and Translate only when the Documentation agent is selected."""
+    """Show Syntax, Translate, and Professional only when the Documentation agent is selected."""
     choices = (
         DOCUMENTATION_TASK_CHOICES
         if agent == "documentation"

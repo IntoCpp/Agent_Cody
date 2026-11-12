@@ -25,9 +25,9 @@ The repository-root `start_agent_cody.ps1` script provides the Windows launcher.
 
 - **Code** supports Python, C++, and C# tasks. It generates code in **one** agent call per Submit (no automatic review loop).
 - **Review** supports Python, C++, and C# tasks. It performs one review-agent pass and formats the structured review as a readable issue list. After a successful Code response, the **Review** button (Code agent only) runs the same review path on the latest generated code; optional focus text can be added in the prompt box.
-- **Documentation** supports Python, C++, and C# code-documentation tasks. It also exposes **Syntax** for professional proofreading and **Translate** for English/French translation.
+- **Documentation** supports Python, C++, and C# code-documentation tasks. It also exposes **Syntax** for professional proofreading, **Translate** for English/French translation, and **Professional** (`standards/professional.md`) for workplace-appropriate prose revision.
 
-Syntax and Translate must appear in the Gradio task selector only while the Documentation agent is selected. The prompt textbox is cleared after submission because the submitted text remains visible in chat history.
+Syntax, Translate, and Professional must appear in the Gradio task selector only while the Documentation agent is selected. The prompt textbox is cleared after submission because the submitted text remains visible in chat history.
 
 ### Prompt and standards composition
 

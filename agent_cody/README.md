@@ -17,7 +17,7 @@ The Gradio interface provides three agents:
 
 After a **successful** Code response, the **Review** button appears (Code agent only). Use it to run the review agent on the **latest generated code**, optionally adding focus notes in the prompt box. You can also select **Review** in the Agent dropdown and paste code (same review pipeline).
 
-Each agent is paired with a **task** that selects the programming language (Python, C++, C#) or, for Documentation only, a text mode (Syntax or Translate).
+Each agent is paired with a **task** that selects the programming language (Python, C++, C#) or, for Documentation only, a text mode (Syntax, Translate, or Professional).
 
 Submitted text and responses are retained in the chat history. The input box is cleared after each successful submission and shows at least ten lines while typing.
 
@@ -64,7 +64,7 @@ The shared `common.md` coding rules apply to Code and Review. Documentation inte
 
 For each agent, the long static block (`agents/*.md` and applicable standards) is sent **once per session** for each distinct **Agent + Task** pair (first Submit after **Clear**, or after you change **Task**). Later messages in the same session add **Conversation History** (prior user/assistant turns from the chat) plus the current request, without repeating that static block.
 
-The Gradio task selector adds **Syntax** and **Translate** only while the Documentation agent is selected.
+The Gradio task selector adds **Syntax**, **Translate**, and **Professional** only while the Documentation agent is selected.
 
 ### Model configuration
 
